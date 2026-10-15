@@ -1,4 +1,4 @@
-name: Gerar APK WA Autoatendimento V16.3.0 corrigido
+name: Gerar APK WA Autoatendimento V16.3.2
 
 on:
   workflow_dispatch:
@@ -18,20 +18,24 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Validar e extrair projeto corrigido V16.3.0
+      - name: Validar e extrair projeto V16.3.2
         shell: bash
         run: |
           set -euo pipefail
-          ZIP="$GITHUB_WORKSPACE/WA_Autoatendimento_V16_3_0_BIOMETRIA_CORRIGIDO.zip"
-          if [ ! -f "$ZIP" ]; then echo "::error::Envie o ZIP corrigido para a raiz do repositorio."; exit 1; fi
+          ZIP="$GITHUB_WORKSPACE/WA_Autoatendimento_V16_3_2_RESPOSTAS_BIOMETRIA.zip"
+          if [ ! -f "$ZIP" ]; then
+            echo "::error::Coloque WA_Autoatendimento_V16_3_2_RESPOSTAS_BIOMETRIA.zip na raiz do repositorio."
+            exit 1
+          fi
           unzip -t "$ZIP"
-          BUILD_DIR="$RUNNER_TEMP/wa-autoatendimento-v1630"
+          BUILD_DIR="$RUNNER_TEMP/wa-autoatendimento-v1632"
           mkdir -p "$BUILD_DIR"
           unzip -q "$ZIP" -d "$BUILD_DIR"
           for FILE in settings.gradle build.gradle app/build.gradle app/src/main/AndroidManifest.xml app/src/main/assets/index.html app/src/main/java/com/autoatendimento/app/MainActivity.java app/src/main/java/com/autoatendimento/app/WhatsAppNotificationService.java; do
             test -f "$BUILD_DIR/$FILE" || { echo "::error::Arquivo ausente: $FILE"; exit 1; }
           done
           echo "PROJECT_DIR=$BUILD_DIR" >> "$GITHUB_ENV"
+          echo "Projeto V16.3.2 validado."
       - name: Configurar Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -46,7 +50,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: WA-Autoatendimento-V16.3.0-APK
+          name: WA-Autoatendimento-V16.3.2-APK
           path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 14
@@ -54,7 +58,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: log-compilacao-WA-V16.3.0
+          name: log-compilacao-WA-V16.3.2
           path: ${{ runner.temp }}/compilacao.log
           if-no-files-found: warn
           retention-days: 7
